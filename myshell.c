@@ -23,7 +23,7 @@ int main(int argc,char** argv){
 
     finalize();
 }
-
+//looks for '|' and returns its index. If not found, return 0
 int find_pipe(int count, char ** arglist){
     int i;
     for (i=0 ; i < count ; i++){
@@ -33,7 +33,7 @@ int find_pipe(int count, char ** arglist){
     }
     return -1;
 }
-
+//checks if the last value in arglist is &- returns 1 if it is, else 0
 int is_background(int count, char ** arglist){
     int i;
     if (strcmp(arglist[count-1], "&") == 0){
@@ -43,7 +43,7 @@ int is_background(int count, char ** arglist){
     return 0;
 }
 
-// run child command in case it's a legal one, if not, returns 0 - this function takes care only in case there is not |
+// execute command if legal, else exits with exit value 1.
 void execute_child(char** arglist){
     if (execvp(arglist[0], arglist) == -1){
         fprintf(stderr,"error in execvp\n",16);
@@ -51,31 +51,32 @@ void execute_child(char** arglist){
     }
 }
 
+//print error if sigaction fails
 void error_in_sigaction(){
     fprintf(stderr,"error in sigaction\n",19);
     exit(1);
 }
 
+//print error if dup2 fails
 void error_in_dup2(){
     fprintf(stderr,"error in dup2\n",14);
     exit(1);
 }
 
 int process_arglist(int count, char** arglist){
-
-    // checks if there is positive amount of commands, if not, exit
+    // checks if number of commads is valid, i.e. positive
     if (count <= 0){
-        fprintf(stderr,"number of commands has to be a positive numbers\n",48);
+        fprintf(stderr,"Invalid number of commands- Must be positive number\n",52);
         return 1;
     }
-    //initializing structs
+    //initializing structs for sigaction
     struct sigaction sig_chld;
     struct sigaction sig_dfl;
     struct sigaction sig_ign;
     memset(&sig_chld, 0, sizeof(sig_chld));
     memset(&sig_dfl, 0, sizeof(sig_dfl));
     memset(&sig_ign, 0, sizeof(sig_ign));
-    //setting handlers
+    //set handlers
     sig_chld.sa_handler = SIG_IGN;
     sig_dfl.sa_handler = SIG_DFL;
     sig_ign.sa_handler = SIG_IGN;
@@ -88,8 +89,7 @@ int process_arglist(int count, char** arglist){
         error_in_sigaction();
     }
 
-    // checks if there is an &
-    int is_background_process = 0;
+    int is_background_process = 0; //0 means foreground, 1 means background
     is_background_process = is_background(count, arglist);
 
     // check if there is a pipe
