@@ -11,7 +11,7 @@ int process_arglist(int count, char** arglist);
 // prepare and finalize calls for initialization and destruction of anything required
 int prepare(void);
 int finalize(void);
-/*
+
 int main(void)
 {
 	if (prepare() != 0)
@@ -64,4 +64,3 @@ int main(void)
 
 	return 0;
 }
-*/
